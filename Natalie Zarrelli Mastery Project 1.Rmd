@@ -1,0 +1,837 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+#Natalie Zarrelli, Spring 2019: Plants, Power and Profits
+######Mastery Project: Phylogenetic Trees, comparing via lists and Venn diagrams, and then a third tree project with Trait data attached to one of the trees. Park Trees, Street Trees, and Native Trees (via the Adubon list)
+
+
+```{r}
+library(ape)
+library(brranching)
+library(picante)
+library(maps)
+library (dplyr)
+```
+
+```{r}
+getwd()
+setwd("/Users/Natalie/Desktop/botany/0botany Mastery")
+```
+
+
+#park trees
+```{r}
+parktrees <- c("Acer_rubrum", 
+"Acer_platanoides",
+"Acer_freemanii", 
+"Acer_saccharum", 
+"Acer_negundo", 
+"Acer_saccharinum", 
+"Acer_campestre", 
+"Acer_palmatum", 
+"Acer_pseudoplatanus", 
+"Aesculus_hippocastanum", 
+"Aesculus_flava", 
+"Aesculus_pavia", 
+"Aesculus_parviflora", 
+"Amelanchier_canadensis", 
+"Amelanchier_NA", 
+"Amelanchier_laevis", 
+"Amelanchier_arborea", 
+"Amelanchier_sanguinea", 
+"Carpinus_caroliniana", 
+"Carpinus_betulus", 
+"Carya_ovata", 
+"Carya_cordiformis", 
+"Carya_glabra", 
+"Celtis_occidentalis", 
+"Celtis_sinensis", 
+"Cercis_canadensis", 
+"Chionanthus_virginicus", 
+"Baeolophus_bicolor", 
+"Quiscalus_quiscula", 
+"Hedera_helix", 
+"Asplenium_platyneuron", 
+"Buteo_jamaicensis", 
+"Mimus_polyglottos", 
+"Xylobolus_frustulatus", 
+"Passer_domesticus", 
+"Oxyura_jamaicensis", 
+"Aix_sponsa", 
+"Turdus_migratorius", 
+"Phlebia_tremellosa", 
+"Gavia_immer", 
+"Rubus_fruticosus", 
+"Sciurus_carolinensis", 
+"Cyanocitta_cristata", 
+"Ilex_opaca", 
+"Phalacrocorax_auritus", 
+"Catharus_guttatus", 
+"Poronidulus_conchifer", 
+"Polystichum_acrostichoides", 
+"Bisporella_citrina", 
+"Stagmomantis_carolina", 
+"Pinus_strobus", 
+"Pleurotus_ostreatus", 
+"Sturnus_vulgaris", 
+"Anas_platyrhynchos", 
+"Ardea_herodias", 
+"Leucothoe_fontanesiana", 
+"Sitta_carolinensis", 
+"Biscogniauxia_marginata", 
+"Columba_livia", 
+"Zonotrichia_albicollis", 
+"Haemorhous_mexicanus", 
+"Fulica_americana", 
+"Lonicera_japonica", 
+"Accipiter_cooperi", 
+"Cardinalis_cardinalis", 
+"Bucephala_albeola", 
+"Melanerpes_carolinus", 
+"Bubo_virginianus", 
+"Amphilogia_gyrosa", 
+"Colaptes_auratus", 
+"Taxus_baccata", 
+"Arum_italicum", 
+"Sphyrapicus_varius", 
+"Sitta_canadensis", 
+"Procyon_lotor", 
+"Carex_plantaginea", 
+"Trametes_gibbosa", 
+"Hymenochaetopsis_olivacea", 
+"Anas_clypeata", 
+"Candelaria_concolor", 
+"Lamium_amplexicaule", 
+"Reynoutria_japonica", 
+"Ficaria_verna", 
+"Entodon_seductrix", 
+"Phaeophyscia_adiastola", 
+"Lecanora_dispersa", 
+"Phragmites_australis", 
+"Woodsia_obtusa", 
+"Trachemys_scripta", 
+"Arctium_minus", 
+"Pipilo_erythrophthalmus", 
+"Phytolacca_americana", 
+"Bryum_argenteum", 
+"Dryopteris_carthusiana", 
+"Artemisia_vulgaris", 
+"Branta_canadensis", 
+"Baccharis_halimifolia", 
+"Allium_vineale", 
+"Euonymus_fortunei", 
+"Mycosphaerella_colorata", 
+"Alliaria_petiolata", 
+"Lasionycteris_noctivagans", 
+"Helleborus_orientalis", 
+"Crocus_vernus", 
+"Cornus_mas", 
+"Dolichovespula_maculata", 
+"Sanguinaria_canadensis", 
+"Lamium_purpureum", 
+"Prunus_laurocerasus", 
+"Spinus_tristis", 
+"Melospiza_melodia", 
+"Amphasia_interstitialis", 
+"Xylocopa_virginica", 
+"Pterostichus_mutus", 
+"Narcissus_pseudonarcissus", 
+"Lindera_benzoin", 
+"Mertensia_virginica", 
+"Eranthis_hyemalis", 
+"Ardea_alba", 
+"Calosoma_scrutator", 
+"Apis_mellifera", 
+"Junco_hyemalis", 
+"Pieris_japonica", 
+"Spizella_passerina", 
+"Narcissus_NA", 
+"Zenaida_macroura", 
+"Prunus_serotina", 
+"Passerella_iliaca", 
+"Scilla_siberica", 
+"Galanthus_nivalis", 
+"Capsella_bursa-pastoris", 
+"Podophyllum_peltatum", 
+"Forsythia_NA", 
+"Micropterus_salmoides", 
+"Poecile_atricapillus", 
+"Notemigonus_crysoleucas", 
+"Dryobates_pubescens", 
+"Vinca_minor", 
+"Quercus_rubra", 
+"Bjerkandera_adusta", 
+"Naphrys_pulex", 
+"Jasminum_nudiflorum", 
+"Lepomis_macrochirus", 
+"Syringa_vulgaris", 
+"Rhus_glabra", 
+"Anas_rubripes", 
+"Cornus_florida", 
+"Cornus_racemosa", 
+"Cornus_amomum", 
+"Cornus_sericea", 
+"Cornus_alternifolia", 
+"Corylus_colurna", 
+"Corylus_avellana", 
+"Corylus_americana", 
+"Crataegus_phaenopyrum", 
+"Crataegus_coccinea", 
+"Crataegus_mollis", 
+"Crataegus_crus-galli", 
+"Crataegus_monogyna", 
+"Crataegus_NA", 
+"Fagus_grandifolia", 
+"Fraxinus_americana", 
+"Fraxinus_profunda", 
+"Fraxinus_pennsylvanica", 
+"Fraxinus_excelsior", 
+"Fraxinus_ornus", 
+"Ginkgo_biloba", 
+"Gleditsia_triacanthos", 
+"Ilex_crenata", 
+"Ilex_glabra", 
+"Ilex_verticillata", 
+"Juglans_nigra", 
+"Liquidambar_styraciflua", 
+"Liriodendron_tulipifera", 
+"Maclura_pomifera", 
+"Magnolia_soulangeana", 
+"Magnolia_tripetala", 
+"Magnolia_virginiana", 
+"Malus_NA", 
+"Malus_prunifolia", 
+"Malus_hupehensis", 
+"Malus_toringo", 
+"Malus_baccata", 
+"Morus_alba", 
+"Nyssa_sylvatica", 
+"Phellodendron_amurense", 
+"Pinus_rigida", 
+"Pinus_wallichiana", 
+"Pinus_nigra", 
+"Pinus_resinosa", 
+"Platanus_occidentalis", 
+"Platanus_hispanica", 
+"Prunus_persica", 
+"Prunus_virginiana", 
+"Prunus_yedoensis", 
+"Prunus_NA", 
+"Quercus_alba", 
+"Quercus_palustris", 
+"Quercus_cerris", 
+"Quercus_bicolor", 
+"Quercus_macrocarpa", 
+"Quercus_NA", 
+"Quercus_ilicifolia", 
+"Quercus_coccinea", 
+"Quercus_phellos", 
+"Quercus_nigra", 
+"Quercus_velutina", 
+"Quercus_robur", 
+"Robinia_pseudoacacia", 
+"Taxodium_distichum", 
+"Tilia_americana", 
+"Tilia_cordata", 
+"Tilia_platyphyllos", 
+"Ulmus_americana", 
+"Ulmus_NA", 
+"Ulmus_glabra", 
+"Ulmus_pumila", 
+"Ulmus_rubra", 
+"Ulmus_parvifolia")
+
+parktrees
+
+parktrees_phylo <- phylomatic(taxa = parktrees, storedtree ="zanne2014", get = 'POST')
+plot(parktrees_phylo, no.margin = TRUE)
+```
+
+
+
+```{r}
+setwd("/Users/Natalie/Desktop/botany/0botany Mastery")
+
+plot(parktrees_phylo, no.margin = TRUE, type="cladogram")
+newick_park = "parktrees_phylo"
+write.tree(parktrees_phylo, file=newick_park)
+```
+
+```{r}
+setwd("/Users/Natalie/Desktop/botany/botany biodiversity project")
+```
+
+```{r}
+getwd()
+```
+
+
+#street trees
+
+```{r}
+streettrees <- c("Acer platanoides", 
+"Acer rubrum", 
+"Acer saccharinum", 
+"Fagus grandifolia", 
+"Fraxinus pennsylvanica", 
+"Ginkgo biloba", 
+"Gleditsia triacanthos", 
+"Gymnocladus dioica", 
+"Koelreuteria paniculata", 
+"Platanus hybrida", 
+"Pyrus calleryana", 
+"Quercus bicolor", 
+"Quercus imbricaria", 
+"Quercus palustris", 
+"Quercus phellos", 
+"Quercus rubra", 
+"Quercus velutina", 
+"Robinia pseudoacacia", 
+"Styphnolobium japonicum", 
+"Syringa reticulata", 
+"Tilia americana", 
+"Tilia cordata", 
+"Tilia tomentosa", 
+"Ulmus americana", 
+"Ulmus parvifolia", 
+"Zelkova serrata")
+
+streettrees
+
+streettrees_phylo <- phylomatic(taxa = streettrees, storedtree ="zanne2014", get = 'POST') 
+plot(streettrees_phylo, no.margin = TRUE) 
+
+```
+
+
+```{r}
+setwd("/Users/Natalie/Desktop/botany/0botany Mastery")
+
+plot(streettrees_phylo, no.margin = TRUE, type="cladogram") 
+newick_street = "streettrees_phylo" 
+write.tree(streettrees_phylo, file=newick_street) 
+```
+
+#to use with picante
+```{r}
+newick_streettrees = "((platanus_hybrida:136.9,(((((quercus_phellos:40.41,Fagus_grandifolia:40.41,(Quercus_imbricaria:2.77794,((Quercus_palustris:0.38487,(Quercus_velutina:0.127739,Quercus_rubra:0.127739):0.25713):1.68414,Quercus_bicolor:2.06901):0.708931):37.6321)Fagaceae:65.526,((Zelkova_serrata:38.1072,(Ulmus_americana:37.7515,Ulmus_parvifolia:37.7515):0.355694):51.1699,Pyrus_calleryana:89.2771)Rosales:16.6589):1.05941,(styphnolobium_japonicum:69.1425,((Gymnocladus_dioica:9.45824,Gleditsia_triacanthos:9.45824):48.124,Robinia_pseudoacacia:57.5823):11.5602)Fabaceae:37.8529):10.5393,((Tilia_americana:8.39273,(Tilia_tomentosa:4.03116,Tilia_cordata:4.03116):4.36157):92.1209,((Acer_platanoides:19.0619,(Acer_saccharinum:1.07717,Acer_rubrum:1.07717):17.9848):27.0354,Koelreuteria_paniculata:46.0973):54.4163):17.0211)Rosidae:1.63077,(Fraxinus_pennsylvanica:21.6934,Syringa_reticulata:21.6934):97.4721)Gunneridae:17.735)Eudicotyledoneae:215.334,Ginkgo_biloba:352.235)Spermatophyta;"
+street2 = read.tree(text=newick_streettrees)
+plot(street2, type="phylogram", show.node.label=TRUE)
+```
+
+
+
+#Native Tree species NYC
+
+```{r}
+
+nativetrees <- c("Acer negundo",
+"Acer rubrum",
+"Acer saccharinum",
+"Alnus serrulata",
+"Amelanchier arborea",
+"Baccharis halimifolia",
+"Carpinus caroliniana",
+"Carya cordiformis",
+"Carya glabra",
+"Carya ovata",
+"Carya tomentosa",
+"Castanea dentata",
+"Celtis occidentalis",
+"Chamaecyparis thyoides",
+"Cornus alternifolia",
+"Cornus florida",
+"Cornus racemosa",
+"Crataegus crus-galli",
+"Diospyros virginiana",
+"Fraxinus americana",
+"Fraxinus pennsylvanica",
+"Hamamelis virginiana",
+"Juglans nigra",
+"Juniperus virginiana",
+"Kalmia latifolia",
+"Larix laricina",
+"Liquidambar styraciflua",
+"Liriodendron tulipifera",
+"Morus rubra",
+"Ostrya virginiana",
+"Pinus resinosa",
+"Pinus rigida",
+"Pinus strobus",
+"Platanus occidentalis",
+"Populus deltoides",
+"Populus tremuloides",
+"Prunus pensylvanica",
+"Prunus serotina",
+"Prunus virginiana",
+"Ptelea trifoliata",
+"Quercus alba",
+"Quercus montana",
+"Quercus palustris",
+"Quercus prinoides",
+"Quercus rubra",
+"Rhus copallinum",
+"Rhus glabra",
+"Rhus typhina",
+"Salix discolor",
+"Salix nigra",
+"Sassafras albidum",
+"Staphylea trifolia",
+"Thuja occidentalis",
+"Tsuga canadensis",
+"Ulmus americana",
+"Viburnum prunifolium")
+
+nativetrees
+
+nativetrees_phylo <- phylomatic(taxa = streettrees, storedtree ="zanne2014", get = 'POST')
+plot(nativetrees_phylo, no.margin = TRUE)
+
+
+
+```
+
+
+```{r}
+
+setwd("/Users/Natalie/Desktop/botany/0botany Mastery")
+plot(nativetrees_phylo, no.margin = TRUE, type="cladogram")
+newick_native = "nativetrees_phylo"
+write.tree(nativetrees_phylo, file=newick_native)
+
+
+```
+
+
+
+
+#A new way to compare the two lists:
+
+```{r}
+install.packages("gplots") 
+```
+
+
+```{r}
+#first <- c(1:3, letters[1:6], "foo", "bar")
+#second <- c(2:4, letters[5:8], "bar", "asd")
+
+#both <- first[first %in% second] # in both, same as call: intersect(first, second)
+#onlyfirst <- first[!first %in% second] # only in 'first', same as: setdiff(first, second)
+#onlysecond <- second[!second %in% first] # only in 'second', same as: setdiff(second, first)
+#length(both) 
+#length(onlyfirst) 
+#length(onlysecond) 
+```
+
+
+------
+
+Venn Diagram and list contents: 
+
+```{r}
+A = c("Acer negundo",
+"Acer rubrum",
+"Acer saccharinum",
+"Alnus serrulata",
+"Amelanchier arborea",
+"Baccharis halimifolia",
+"Carpinus caroliniana",
+"Carya cordiformis",
+"Carya glabra",
+"Carya ovata",
+"Carya tomentosa",
+"Castanea dentata",
+"Celtis occidentalis",
+"Chamaecyparis thyoides",
+"Cornus alternifolia",
+"Cornus florida",
+"Cornus racemosa",
+"Crataegus crus-galli",
+"Diospyros virginiana",
+"Fraxinus americana",
+"Fraxinus pennsylvanica",
+"Hamamelis virginiana",
+"Juglans nigra",
+"Juniperus virginiana",
+"Kalmia latifolia",
+"Larix laricina",
+"Liquidambar styraciflua",
+"Liriodendron tulipifera",
+"Morus rubra",
+"Ostrya virginiana",
+"Pinus resinosa",
+"Pinus rigida",
+"Pinus strobus",
+"Platanus occidentalis",
+"Populus deltoides",
+"Populus tremuloides",
+"Prunus pensylvanica",
+"Prunus serotina",
+"Prunus virginiana",
+"Ptelea trifoliata",
+"Quercus alba",
+"Quercus montana",
+"Quercus palustris",
+"Quercus prinoides",
+"Quercus rubra",
+"Rhus copallinum",
+"Rhus glabra",
+"Rhus typhina",
+"Salix discolor",
+"Salix nigra",
+"Sassafras albidum",
+"Staphylea trifolia",
+"Thuja occidentalis",
+"Tsuga canadensis",
+"Ulmus americana",
+"Viburnum prunifolium")
+
+S = c("Acer platanoides", 
+"Acer rubrum", 
+"Acer saccharinum", 
+"Fagus grandifolia", 
+"Fraxinus pennsylvanica", 
+"Ginkgo biloba", 
+"Gleditsia triacanthos", 
+"Gymnocladus dioica", 
+"Koelreuteria paniculata", 
+"Platanus hybrida", 
+"Pyrus calleryana", 
+"Quercus bicolor", 
+"Quercus imbricaria", 
+"Quercus palustris", 
+"Quercus phellos", 
+"Quercus rubra", 
+"Quercus velutina", 
+"Robinia pseudoacacia", 
+"Styphnolobium japonicum", 
+"Syringa reticulata", 
+"Tilia americana", 
+"Tilia cordata", 
+"Tilia tomentosa", 
+"Ulmus americana", 
+"Ulmus parvifolia", 
+"Zelkova serrata")
+
+A %in% S
+intersect(A,S)
+setdiff(A,S)
+setdiff(S,A)
+
+```
+
+
+```{r}
+m <- match(A,S)
+A[!is.na(m)]
+
+S[m[!is.na(m)]]
+
+```
+
+```{r}
+A[is.na(m)]
+S[which(is.na(m))]
+```
+
+
+```{r}
+P = c("Acer rubrum", 
+"Acer platanoides", 
+"Acer freemanii", 
+"Acer saccharum", 
+"Acer negundo", 
+"Acer saccharinum", 
+"Acer campestre", 
+"Acer palmatum", 
+"Acer pseudoplatanus", 
+"Aesculus hippocastanum", 
+"Aesculus flava", 
+"Aesculus pavia", 
+"Aesculus parviflora", 
+"Amelanchier canadensis", 
+"Amelanchier NA", 
+"Amelanchier laevis", 
+"Amelanchier arborea", 
+"Amelanchier sanguinea", 
+"Carpinus caroliniana", 
+"Carpinus betulus", 
+"Carya ovata", 
+"Carya cordiformis", 
+"Carya glabra", 
+"Celtis occidentalis", 
+"Celtis sinensis", 
+"Cercis canadensis", 
+"Chionanthus virginicus", 
+"Baeolophus bicolor", 
+"Quiscalus quiscula", 
+"Hedera helix", 
+"Asplenium platyneuron", 
+"Buteo jamaicensis", 
+"Mimus polyglottos", 
+"Xylobolus frustulatus", 
+"Passer domesticus", 
+"Oxyura jamaicensis", 
+"Aix sponsa", 
+"Turdus migratorius", 
+"Phlebia tremellosa", 
+"Gavia immer", 
+"Rubus fruticosus", 
+"Sciurus carolinensis", 
+"Cyanocitta cristata", 
+"Ilex opaca", 
+"Phalacrocorax auritus", 
+"Catharus guttatus", 
+"Poronidulus conchifer", 
+"Polystichum acrostichoides", 
+"Bisporella citrina", 
+"Stagmomantis carolina", 
+"Pinus strobus", 
+"Pleurotus ostreatus", 
+"Sturnus vulgaris", 
+"Anas platyrhynchos", 
+"Ardea herodias", 
+"Leucothoe fontanesiana", 
+"Sitta carolinensis", 
+"Biscogniauxia marginata", 
+"Columba livia", 
+"Zonotrichia albicollis", 
+"Haemorhous mexicanus", 
+"Fulica americana", 
+"Lonicera japonica", 
+"Accipiter cooperi", 
+"Cardinalis cardinalis", 
+"Bucephala albeola", 
+"Melanerpes carolinus", 
+"Bubo virginianus", 
+"Amphilogia gyrosa", 
+"Colaptes auratus", 
+"Taxus baccata", 
+"Arum italicum", 
+"Sphyrapicus varius", 
+"Sitta canadensis", 
+"Procyon lotor", 
+"Carex plantaginea", 
+"Trametes gibbosa", 
+"Hymenochaetopsis olivacea", 
+"Anas clypeata", 
+"Candelaria concolor", 
+"Lamium amplexicaule", 
+"Reynoutria japonica", 
+"Ficaria verna", 
+"Entodon seductrix", 
+"Phaeophyscia adiastola", 
+"Lecanora dispersa", 
+"Phragmites australis", 
+"Woodsia obtusa", 
+"Trachemys scripta", 
+"Arctium minus", 
+"Pipilo erythrophthalmus", 
+"Phytolacca americana", 
+"Bryum argenteum", 
+"Dryopteris carthusiana", 
+"Artemisia vulgaris", 
+"Branta canadensis", 
+"Baccharis halimifolia", 
+"Allium vineale", 
+"Euonymus fortunei", 
+"Mycosphaerella colorata", 
+"Alliaria petiolata", 
+"Lasionycteris noctivagans", 
+"Helleborus orientalis", 
+"Crocus vernus", 
+"Cornus mas", 
+"Dolichovespula maculata", 
+"Sanguinaria canadensis", 
+"Lamium purpureum", 
+"Prunus laurocerasus", 
+"Spinus tristis", 
+"Melospiza melodia", 
+"Amphasia interstitialis", 
+"Xylocopa virginica", 
+"Pterostichus mutus", 
+"Narcissus pseudonarcissus", 
+"Lindera benzoin", 
+"Mertensia virginica", 
+"Eranthis hyemalis", 
+"Ardea alba", 
+"Calosoma scrutator", 
+"Apis mellifera", 
+"Junco hyemalis", 
+"Pieris japonica", 
+"Spizella passerina", 
+"Narcissus NA", 
+"Zenaida macroura", 
+"Prunus serotina", 
+"Passerella iliaca", 
+"Scilla siberica", 
+"Galanthus nivalis", 
+"Capsella bursa-pastoris", 
+"Podophyllum peltatum", 
+"Forsythia NA", 
+"Micropterus salmoides", 
+"Poecile atricapillus", 
+"Notemigonus crysoleucas", 
+"Dryobates pubescens", 
+"Vinca minor", 
+"Quercus rubra", 
+"Bjerkandera adusta", 
+"Naphrys pulex", 
+"Jasminum nudiflorum", 
+"Lepomis macrochirus", 
+"Syringa vulgaris", 
+"Rhus glabra", 
+"Anas rubripes", 
+"Cornus florida", 
+"Cornus racemosa", 
+"Cornus amomum", 
+"Cornus sericea", 
+"Cornus alternifolia", 
+"Corylus colurna", 
+"Corylus avellana", 
+"Corylus americana", 
+"Crataegus phaenopyrum", 
+"Crataegus coccinea", 
+"Crataegus mollis", 
+"Crataegus crus-galli", 
+"Crataegus monogyna", 
+"Crataegus NA", 
+"Fagus grandifolia", 
+"Fraxinus americana", 
+"Fraxinus profunda", 
+"Fraxinus pennsylvanica", 
+"Fraxinus excelsior", 
+"Fraxinus ornus", 
+"Ginkgo biloba", 
+"Gleditsia triacanthos", 
+"Ilex crenata", 
+"Ilex glabra", 
+"Ilex verticillata", 
+"Juglans nigra", 
+"Liquidambar styraciflua", 
+"Liriodendron tulipifera", 
+"Maclura pomifera", 
+"Magnolia soulangeana", 
+"Magnolia tripetala", 
+"Magnolia virginiana", 
+"Malus NA", 
+"Malus prunifolia", 
+"Malus hupehensis", 
+"Malus toringo", 
+"Malus baccata", 
+"Morus alba", 
+"Nyssa sylvatica", 
+"Phellodendron amurense", 
+"Pinus rigida", 
+"Pinus wallichiana", 
+"Pinus nigra", 
+"Pinus resinosa", 
+"Platanus occidentalis", 
+"Platanus hispanica", 
+"Prunus persica", 
+"Prunus virginiana", 
+"Prunus yedoensis", 
+"Prunus NA", 
+"Quercus alba", 
+"Quercus palustris", 
+"Quercus cerris", 
+"Quercus bicolor", 
+"Quercus macrocarpa", 
+"Quercus NA", 
+"Quercus ilicifolia", 
+"Quercus coccinea", 
+"Quercus phellos", 
+"Quercus nigra", 
+"Quercus velutina", 
+"Quercus robur", 
+"Robinia pseudoacacia", 
+"Taxodium distichum", 
+"Tilia americana", 
+"Tilia cordata", 
+"Tilia platyphyllos", 
+"Ulmus americana", 
+"Ulmus NA", 
+"Ulmus glabra", 
+"Ulmus pumila", 
+"Ulmus rubra", 
+"Ulmus parvifolia")
+```
+
+```{r}
+mm <- match(P,S)
+P[!is.na(m)]
+
+S[m[!is.na(m)]]
+```
+```{r}
+A %in% P
+intersect(A,P)
+
+#what is in the native audobon list but not the park
+setdiff(A,P)
+#what is in the park but not in the native list
+setdiff(P,A)
+```
+
+
+```{r}
+require("gplots")
+venn(list(Native.Species = A, Street.Species = S, Park.Species = P))
+```
+
+```{r}
+length(intersect(A,S))
+length(setdiff(A,S))
+length(setdiff(S,A))
+```
+
+
+#Using Picante to look at trait data on a tree - Native Trees traits as attributes obtained from the Audubon list (also as excel sheet in the Courseworks page), originally obtained at this link: https://www.audubon.org/native-plants with the zip code 11025. I copied the list (a bit tedious) into excel and formatted the "attribute" data into separate columns. I then saw that I couldn't use the data in word form as a matrix (which gave me errors, I gave it a try anyway) and so converted each character to a numerical value, like a code. This way I could see the traits as descrete, have/have not values. 
+
+#csv data and make a matrix
+
+```{r}
+nativetraitslist <- read.csv("nativetrees - Sheet1.csv", row.names = 1)
+
+nativetraitslist
+```
+
+
+#matrix of the csv data
+
+```{r}
+nativetraitslist <- as.matrix(nativetraitslist)
+dim(nativetraitslist)
+```
+
+#native tree plot for picante - to plot clumped traits on the tree using the trait data I formatted in excel and as a matrix
+
+```{r}
+newick_nativetrees = "((platanus_hybrida:136.9,(((((quercus_phellos:40.41,Fagus_grandifolia:40.41,(Quercus_imbricaria:2.77794,((Quercus_palustris:0.38487,(Quercus_velutina:0.127739,Quercus_rubra:0.127739):0.25713):1.68414,Quercus_bicolor:2.06901):0.708931):37.6321)Fagaceae:65.526,((Zelkova_serrata:38.1072,(Ulmus_americana:37.7515,Ulmus_parvifolia:37.7515):0.355694):51.1699,Pyrus_calleryana:89.2771)Rosales:16.6589):1.05941,(styphnolobium_japonicum:69.1425,((Gymnocladus_dioica:9.45824,Gleditsia_triacanthos:9.45824):48.124,Robinia_pseudoacacia:57.5823):11.5602)Fabaceae:37.8529):10.5393,((Tilia_americana:8.39273,(Tilia_tomentosa:4.03116,Tilia_cordata:4.03116):4.36157):92.1209,((Acer_platanoides:19.0619,(Acer_saccharinum:1.07717,Acer_rubrum:1.07717):17.9848):27.0354,Koelreuteria_paniculata:46.0973):54.4163):17.0211)Rosidae:1.63077,(Fraxinus_pennsylvanica:21.6934,Syringa_reticulata:21.6934):97.4721)Gunneridae:17.735)Eudicotyledoneae:215.334,Ginkgo_biloba:352.235)Spermatophyta;"
+native2 = read.tree(text=newick_nativetrees)
+plot(native2, type="phylogram", show.node.label=TRUE)
+```
+
+
+```{r}
+traitsNT=read.csv("nativetrees - Sheet1.csv", row.names = 1)
+traitsNT
+```
+
+
+#plotting the different descrete traits (each column is an attribute of the tree, each former word, which is indicated as a column name, is represented by a specific number) I was hoping this was a way to view various attributes the trees may have and compare these attributes to the phylogenetic relationships between the native tree species. 
+
+#I found it interesting that all but one non-Ginko Biloba clade had developed shrub habits. Also, all but one species is pertinent to butterflies/caterpillars, and it was interesting to see how the nut trait varied.
+
+#Unfortunately, I'm unsure why I am limited to seven colors; it's not possibly to see the evergreen or seeds traits, which are visible in the matrix data. I attempted to fix this, but kept coming up with the same issue. 
+```{r}
+par(mfrow = c(2, 2))
+for (i in names(traitsNT)) {
+plot(native2, show.tip.label = TRUE, main = i)
+tiplabels(pch = 22, col = traitsNT[, i] + 1, bg = traitsNT[, i] + 1, cex = 1.5)
+}
+```
+

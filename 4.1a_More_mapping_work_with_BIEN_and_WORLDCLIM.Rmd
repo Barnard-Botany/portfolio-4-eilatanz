@@ -9,8 +9,8 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute
 #Students should already have BIEN and ape installed. Other packages to be loaded below should be included in R Studio. If not, install them!
 library(BIEN)
 library(ape) # Package for working with phylogenies in R
-library(maps) # Useful for making quick maps of occurrences
 library(sp) # A package for spatial data
+library(maps) # Useful for making quick maps of occurrences
 library(raster)# Another package for spatial data 
 vignette("BIEN")
 ```
@@ -21,7 +21,7 @@ vignette("BIEN")
 #The GBIF acronym stands for Global Biodiversity Information Facility
 #install.packages("rgbif")  
 #or
-#devtools::install_github("ropensci/rgbif")
+devtools::install_github("ropensci/rgbif")
 library(rgbif)
 ```
 
@@ -81,6 +81,8 @@ Peruse their on-line resource, where it's possible to obtain data for past and f
 
 There are a lot of details here, but important to know that the temperature data are in degrees C times 10. The unit for precipitation data is millimeters, and for altitude is meters. 
 
+#shows us whole world, though we don't "need" the whole world: 
+
 ```{r}
 all.worldclim <- raster::getData("worldclim", res = 10, var = "bio")
 all.worldalt <- raster::getData("worldclim", res = 10, var = "alt")
@@ -106,6 +108,8 @@ points(J_polita[,c("longitude", "latitude")], pch = 16, cex = 0.5, col = "red")
 
 ```
 
+#altitute data, limited in longtue and y axis is long 40:00 in recording
+#temps will go from 0 to 400 (which is weird but it's because temp is taken in celcius and the meters are actually what is on the right side - they take percipitation in cm so are in thousands, and then temps are in 100s with celcius so 0 is freezing, but multiply it by ten to make the data more available to do it times ten instead of using decimal places. so 30.3 c is 303 c, white is the ocean. The below is Iberia with the pyranese mountains. surrounded by water and mountains. examples of endemism in spain also even though not an island, and insects and plants)
 
 ```{r}
 #To change the spatial extent (i.e. "zoom in"), re-set limits with "xlim" and "ylim" 
@@ -114,7 +118,7 @@ plot(all.worldalt[["alt"]], xlim=c(-10,4),ylim=c(35,45))
 
 
 ```{r}
-#Or try the command "crop" with an argument to "extent" 
+#Or try the command "crop" with an argument to "extent" #bio1 shows temperature
 #four numbers are required: the xlim numbers first (west and east longitude)
 #followed by the ylim numbers next (south and north latitude)
 peninsula.worldclim <- crop(all.worldclim, extent(-10, 4, 35, 45))
@@ -122,30 +126,91 @@ plot(peninsula.worldclim[["bio1"]])
 #You can get latitudes and longitudes from mP, whether a published paper map or Google maps. 
 ```
 
-#### Mini-Exercise #1 
+####0000000000000000000000000 Mini-Exercise #1 
 
 Answer the questions about this peninsula example. Then do your own example from Latin America:
-1. Where in the world is the peninsula mapped above?
-2. Is altitude a climate variable? How do the peninsula maps plotted above support your answer?
-3. Make a South America map with occurrence data for Jungia pauciflora & J. polita and:
-          a. Crop the map to allow discerning more detail in the two ranges
-          b. Also include altitude data or climate data, with occurrence points overlayed.
 
+Answer the questions about this peninsula example. Then do your own example from Latin America:
+#1. Where in the world is the peninsula mapped above?
+
+Answer: It's the Iberian Peninsula, in Europe. Portugal (don't forget Portugal!) and Spain!
+
+#2. Is altitude a climate variable? How do the peninsula maps plotted above support your answer?
+
+Answer: The color gradient in the second map shows the climate across the peninsula as variable, and it would be unlikely this would occur without a change in altitude, but also when looking at it along with the first (altitude) map, the highest altitude areas are also the lowest temperature, showing that altitude effects climate and does become a climate variable.
 
 
 ```{r}
-#Trimming data to match South American region
-SAmerica.worldalt <- crop(all.worldalt, extent(-75, -50, -30, -15))
-plot(SAmerica.worldalt[["alt"]])
-#Superimposing data
-#Occurrence data overlays
-points(cbind(J_pauciflora$longitude, J_pauciflora$latitude), col="red", pch=20, cex=.8)
-#points(cbind(J_paniculata$longitude, J_paniculata$latitude), col="blue", pch=20, cex=.8)
-points(cbind(J_polita$longitude, J_polita$latitude), col="white", pch=20, cex=.8)
-#plot(SAmerica.worldclim[["alt"]])
-# more graphical parameters here: https://www.statmethods.net/advgraphs/parameters.html
+#below is just me trying to figure out how to use fancier color in the plots - nz
+library(RColorBrewer)
+display.brewer.all()
+cols<-brewer.pal(n=2,name="Set1")
+cols_t1<-cols[dat$T1]
+cols_t2<-cols[dat$T2]
+plot(Y~X,dat,col=cols_t1,pch=16)
 ```
 
+#3. Make a South America map with occurrence data for Jungia pauciflora & J. polita and 
+```{r}
+J_pauciflora <- BIEN_occurrence_species(species = "Jungia pauciflora")
+J_polita <- BIEN_occurrence_species(species = "Jungia polita")
+
+J_pauciflora_rangemap <- BIEN_ranges_load_species("Jungia pauciflora")
+J_polita_rangemap <- BIEN_ranges_load_species("Jungia polita")
+```
+
+```{r}
+#basic south america map with occurance data
+
+map('world', fill=T, col="white", bg="dark blue", xlim=c(-85,-35),ylim=c(-40,12))
+points(cbind(J_pauciflora$longitude, J_pauciflora$latitude), col="red", pch=20, cex=.8)
+points(cbind(J_polita$longitude, J_polita$latitude), col="orange", pch=20, cex=.8)
+```
+
+
+#a. Crop the map to allow discerning more detail in the two ranges 
+```{r}
+southamerica.worldclim <- crop(all.worldclim, extent(-85, -35, -40, 12))
+plot(southamer.worldclim[["bio1"]])
+```
+
+
+```{r}
+southamerica.worldalt <- crop(all.worldalt, extent(-85, -35, -40, 12))
+plot(all.worldalt[["alt"]], xlim=c(-85,-35),ylim=c(-40,12))
+
+```
+
+
+#b. Also include altitude data or climate data, with occurrence points overlayed.
+```{r}
+#South America World Climate with occurance data
+southamerica.worldclim
+plot(southamerica.worldclim[["bio1"]])
+points(J_polita[,c("longitude", "latitude")], col=cols_t1, pch = 23, cex = 0.6)
+
+plot(southamerica.worldclim[["bio1"]])
+points(J_pauciflora[,c("longitude", "latitude")], col="blue", pch = 23, cex = 0.6)
+
+```
+
+#south america map with altitude also
+```{r}
+
+#South America World altitude map with occurance data
+
+#plot(all.worldalt[["alt"]], all.worldclim[["bio1"]], xlim=c(-85,-35),ylim=c(-40,12))
+#points(J_polita[,c("longitude", "latitude")], pch = 24, cex = 0.5)
+#points(J_polita[,c("longitude", "latitude")], pch = 16, cex = 0.5, col = "red")
+
+southamerica.worldalt
+plot(southamerica.worldalt[["alt"]])
+points(J_polita[,c("longitude", "latitude")], col=cols_t1, pch = 23, cex = 0.6)
+
+plot(southamerica.worldalt[["alt"]])
+points(J_pauciflora[,c("longitude", "latitude")], col="blue", pch = 23, cex = 0.6)
+
+```
 
 
 ## More occurrence data
@@ -180,6 +245,14 @@ head(results$matched_name)
 #which, in turn, interfaces something called the Integrated Taxonomic Information System 
 #https://www.itis.gov/pdf/faq_itis_tsn.pdf
 #The query is interactive, so look in the console and choose the taxon of interest
+
+#asks for taxonomic serial number! Controversial common idea that plants should not have names, but have barcodes, since names are culturally biased and easy to get wrong
+#if you publish ever, get your own orchid ID number to associate with yourself - each genus, species, order all given toxonomic serial number Integrative taxonomic information system 
+#this will want input from you if there are more than one serial number for what we put in 
+
+#says not accepted so we can choose any of them, chose 1 in class - it will show you the ACCEPTED name, different from what we had used before for sweetgrass name
+
+
 name="Hierochloe odorata"  
 tsn=get_tsn(name, accepted=FALSE)
 tsn
@@ -199,12 +272,13 @@ classification(c("Metasequoia glyptostroboides", "Sequoiadendron giganteum"), db
 ```
 
 ```{r}
-#Here's another way to do that, in another database
-tax_name(q="Solanum pimpinellifolium", get="family", db="ncbi")
+#Here's another way to do that, in another database 
+#API key is a lot like a login and password key, so we're using some aspect of this to access - some info is not available so land developers can't eliminate endangered species to avoid conflict, etc
+tax_name(q=" ", get="family", db="ncbi")
 ```
 
 ```{r}
-#If you wanted to know all the genera in a family, or all species in a genus, 
+#If you know a family but wanted to know all the genera in a family, or all species in a genus, 
 #then you're referring to taxa "downstream"
 downstream("Cupressaceae", downto="species", db="itis")
 ```
@@ -212,6 +286,7 @@ downstream("Cupressaceae", downto="species", db="itis")
 ```{r}
 #if you just want exactly one taxonomic rank lower, then this is referred to as "children"
 #Here, because Catalogue of Life can and will be queried INTERACTIVELY, 
+#new database is col
 #you need to look at the console to choose the correct taxon of interest
 #INTERACTIVE feature will require you to go to the console to scroll and select suggestions
 children("Solanum", db="col")
@@ -219,6 +294,8 @@ children("Solanum", db="col")
 
 ```{r}
 #Other useful name-related functions in gbif:
+
+#look up names, looks up names connected to id number and looks up ___1:20:01 in recording
 name_lookup(q="Hierochloe odorata")
 name_backbone(name="Metasequoia glyptostroboides")
 name_usage(5937158)
@@ -241,7 +318,7 @@ Let's first focus just on one of the more comprehensive databases, GBIF.
 library(rgbif)
 #We are going to do a few things here
 #First, if you look in the RGBIF documentation, you can find all the values that can be included with the argument "RecordTypes" -- I put them into a vector with the command below:
-
+#(she looked up in gbif what all the different types - machines would be phones, camera traps, microphones)
 
 RecordTypes <- c('HUMAN_OBSERVATION', 'FOSSIL_SPECIMEN', 'LITERATURE', 'LIVING_SPECIMEN', 'MACHINE_OBSERVATION', 'OBSERVATION', 'PRESERVED_SPECIMEN', 'UNKNOWN')
 RecordTypes
@@ -263,8 +340,9 @@ obs
 #In R, loops starts with an open bracket sign, 
 #Then, the command must define where to find the values in each iteration of the loop
 #An example loop is in the chunk below, using the vector RecordTypes, defined above
+#read it in and try to do it digitally as a loop below
 
-#Look up and get counts for each record type
+#Look up and get counts for each record type, gievs a scope of what is in rgbif since it's huge and they are dated
 for (i in RecordTypes) {
 type=i
 obs <- occ_count(basisOfRecord = i)
@@ -280,11 +358,15 @@ Here's another example of a loop, counting records from different years.
 What does the output tell us about dates in the GBIF database?  
 
 ```{r}
-#Here are all the years I want to look up
+#Here are all the years I want to look up 
+#in a vector
 Years <- c("1599", "1600", "1601", "1619", "1659", "1699", "1700", "1701", "1719", "1759", "1799", "1800", "1801", "1809", "1819", "1829", "1839", "1849", "1859", "1869", "1879", "1889", "1899", "1900", "1903", "1953", "2000", "2003", "2017", "2018")
-#Here, I'm making an empty vector for all the occurrence counts that I get out of 
+#Here, I'm making an empty vector for all the occurrence counts that I get out of - an empty place to be filled with observation counts for all those years put in
 obs <- NULL
 #Now, starting a "for loop" to query  GBIF to count  occurrences in each of the years
+
+#when you see weird numbers at the turn of centuries, it may be they did not have accurate data and so just did the decade's ought number
+
 for (i in Years) {
 obs[i] <- occ_count(year=i)
 }
@@ -305,6 +387,9 @@ Spergularia <- occ_search(scientificName="Spergularia melanocaulos", limit=1000)
 colnames(Spergularia$data)
 #Spergularia$data$genus
 #Spergularia$data$species
+#unique limits biases - just give everythign that's there at one row in the dataset
+#if you do it the same with the genus it will give you a list of all of the species in that genus
+
 unique(Spergularia$data$genus)
 unique(Spergularia$data$species)
 ```
@@ -314,6 +399,7 @@ Very good habit to trim the default data downloaded to be smaller, and make sure
 
 
 ```{r}
+#$ says what kind of thing which is indicated after - name you gave it goes before
 #Choose just three variables
 Spergularia.small <- subset(Spergularia$data, select=c("species", "decimalLatitude",
 "decimalLongitude"))
@@ -322,7 +408,7 @@ colnames(Spergularia.small) <- c("species", "lat", "lon")
 Spergularia.small <- as.data.frame(Spergularia.small)
 head(Spergularia.small)
 tail(Spergularia.small)
-#There are often occurrences with missing values to remove 
+#There are often occurrences with missing values to remove to trim it down so R knows what to do with it and doesn't have NA data
 dim(Spergularia.small)
 Spergularia.small <- Spergularia.small[complete.cases(Spergularia.small),]
 dim(Spergularia.small)
@@ -339,7 +425,7 @@ dim(Spergularia.u)
 This package is great for working with GBIF or other databases. 
 
 ```{r}
-#We can look up a species
+#We can look up a species (occ is occurance for spocc commands) limit is how many records to get 
 DawnRedwood <- occ(q="Metasequoia glyptostroboides", from="gbif", limit=50)
 DawnRedwood
 #By default spocc will return a sample of just 500 observations
@@ -348,12 +434,12 @@ DawnRedwood
 #Also, looking in "Environment" in the upper right, we can see that 
 #this is not a dataframe. It is a new type of object "Large occdat" which has 10 elements
 #One of those elements is data
-#We can ask for at data using this format
+#We can ask for at data using this format - rename it and look at it (get the heading) 
 DawnRedwood.dat <- (DawnRedwood$gbif$data)
 head(DawnRedwood.dat)
 #But that gives ALL the fields. 
 #A nifty function called occ2df gives just some essential data
-#It's nifty that the package "spocc" converts this huge result into a slimmed down dataframe
+#It's nifty that the package "spocc" converts this huge result into a slimmed down dataframe (no more extra data in there)
 DawnRedwood.df <- occ2df(DawnRedwood)
 DawnRedwood.df
 #You can see that there are some occurrence records that lack longitude and latitude
@@ -366,7 +452,8 @@ DawnRedwood.df
 ```
 
 ```{r}
-#Check out idigbio
+#Check out idigbio 
+# topull from there will be less data because it's only using digital scans
 GiantRedwood.digbio <- occ(q="Sequoia giganteum", from="idigbio", limit=50)
 GiantRedwood.digbio <- occ2df(GiantRedwood.digbio)
 GiantRedwood.digbio
@@ -377,39 +464,270 @@ GiantRedwood.digbio
 
 
 
+
+
+
+#DEATHSPIRAL 
+
 ## Mini-exercise #2
 
 Let's build and combine your new skills in looking up species occurrence data with what we learned about mapping. 
 
 Going back to our peninsula, here are a bunch of species that are endemic to that area.
 
-Spergularia melanocaulos
+--->Spergularia melanocaulos
 Petrocoptis grandiflora
-Spergula viscosa
+--->Spergula viscosa
 Minuartia cerastiifolia
-Minuartia recurva
+----->Minuartia recurva
 Petrocoptis hispanica
 Petrocoptis pyrenaica
 
 Choose any two, and do the following:
 
-WORK WITH TAXISE
+#WORK WITH TAXISE
 1. Look up - are they accepted names or are they synonyms?
-2. Look up the two plant taxa. Are they both angiosperms?
+
+Answer: It looks like they are both accepted names for the species, but are not in ITIS. So, I used Crocus sativus and Daucus carota instead, both of which I know occur on the peninsula because some of my family is from there-- I also grew up seeing these in MA, so I know they're not endemic, but I know they'll be in ITIS. When resolving my new names, both are correct and in use. 
+
+
+```{r}
+library("spocc")
+library("taxize")
+library("rgbif")
+
+results=gnr_resolve(names="Spergularia melanocaulos")
+head(results$matched_name)
+results=gnr_resolve(names="Spergula viscosa")
+head(results$matched_name)
+```
+
+```{r}
+#won't work
+name="Spergularia melanocaulos"  
+tsn=get_tsn(name, accepted=FALSE)
+tsn
+#The output suggests checking the itis database for the accepted name
+lapply(tsn, itis_acceptname)
+```
+```{r}
+#won't work
+name="Spergula viscosa"  
+tsn=get_tsn(name, accepted=FALSE)
+tsn
+#The output suggests checking the itis database for the accepted name
+lapply(tsn, itis_acceptname)
+```
+
+```{r}
+#replacement
+name="Crocus sativus"  
+tsn=get_tsn(name, accepted=FALSE)
+tsn
+#The output suggests checking the itis database for the accepted name
+lapply(tsn, itis_acceptname)
+```
+
+```{r}
+#replacement
+name="Daucus carota"  
+tsn=get_tsn(name, accepted=FALSE)
+tsn
+#The output suggests checking the itis database for the accepted name
+lapply(tsn, itis_acceptname)
+```
+
+
+#2. Look up the two plant taxa. Are they both angiosperms? 
+
+
+Answer: yes, they are both angiosperms; if I didn't know what these plants were, I'd know based on "Spermatophytina" as a subdivision. Also maybe Magnoliopsida?
+
+```{r}
+classification(c("Daucus carota", "Crocus sativus"), db="itis")
+```
+
+
 3. Angiosperm or otherwise, what plant family do they belong to?
+
+Answer: The Crocus sativus belongs to the family Iridaceae, and the Daucus carota belongs to the family Apiaceae
+
+
 4. For at least one genus, look up all the species in that genus.
+
+Below: 
+
+```{r}
+downstream("Crocus", downto="species", db="itis")
+```
+
+```{r}
+downstream("Daucus", downto="species", db="itis")
+
+```
+
 5. For one species, look up to see if there are subspecies or other infraspecific forms.
 
-WORK WITH RGBIF OR SPOCC
+I guessed at this, but it looks like there are no subspecies classified? I'm not sure how we should know this, as it's not in my notes from class, 
+
+```{r}
+downstream("Daucus carota", downto="subspecies", db="itis")
+```
+
+
+
+
+#WORK WITH RGBIF OR SPOCC -why is the SPOCC data not showing the correct species??
+#FIXED
 6. For both, search and download species occurrence data; prepare as a data-frame
 7. Clean-up the data-frame:  remove occurrences with missing data and duplicates
 
+```{r}
+S_melanocaulos <- occ(q="Spergularia melanocaulos", from="gbif", limit=50)
+S_melanocaulos
+#By default spocc will return a sample of just 500 observations
+#Here, to speed things up during class, I've further limited to just 50 records
+#Even though we can see there are 1688 occurrences in the database
+#Also, looking in "Environment" in the upper right, we can see that 
+#this is not a dataframe. It is a new type of object "Large occdat" which has 10 elements
+#One of those elements is data
+#We can ask for at data using this format - rename it and look at it (get the heading) 
+S_melanocaulos.dat <- (S_melanocaulos$gbif$data)
+head(S_melanocaulos.dat)
+#But that gives ALL the fields. 
+#A nifty function called occ2df gives just some essential data
+#It's nifty that the package "spocc" converts this huge result into a slimmed down dataframe (no more extra data in there)
+S_melanocaulos.df <- occ2df(S_melanocaulos)
+S_melanocaulos.df
+#You can see that there are some occurrence records that lack longitude and latitude
+#Then you can exclude them
+dim(S_melanocaulos.df)
+S_melanocaulos.df <- S_melanocaulos.df[complete.cases(S_melanocaulos.df),]
+dim(S_melanocaulos.df)
+S_melanocaulos.df
+```
 
-WORK WITH OCCURRENCE DATA, WORLDCLIM DATA AND MAPS
+
+```{r}
+S_viscosa <- occ(q="Spergula viscosa", from="gbif", limit=50)
+S_viscosa
+S_viscosa.dat <- (S_viscosa$gbif$data)
+head(S_viscosa.dat)
+#But that gives ALL the fields. 
+#A nifty function called occ2df gives just some essential data
+#It's nifty that the package "spocc" converts this huge result into a slimmed down dataframe (no more extra data in there)
+S_viscosa.df <- occ2df(S_viscosa)
+S_viscosa.df
+#You can see that there are some occurrence records that lack longitude and latitude
+#Then you can exclude them
+dim(S_viscosa.df)
+S_viscosa.df <- S_viscosa.df[complete.cases(S_viscosa.df),]
+dim(S_viscosa.df)
+S_viscosa.df
+
+```
+
+
+
+#WORK WITH OCCURRENCE DATA, WORLDCLIM DATA AND MAPS - issues with this, need to figure out and fix. 
 8. Map occurrence data with a climate variable for one species on the peninsula
+
+```{r}
+plot(all.worldalt[["alt"]], xlim=c(-10,4),ylim=c(35,45))
+
+```
+
+```{r}
+peninsula.worldclim <- crop(all.worldclim, extent(-10, 4, 35, 45))
+plot(peninsula.worldclim[["bio1"]])
+```
+
+```{r}
+M_recurva <- BIEN_occurrence_species(species = "Minuartia recurva")
+
+```
+
+```{r}
+peninsula.worldclim <- crop(all.worldclim, extent(-10, 4, 35, 45))
+plot(peninsula.worldclim[["bio1"]])
+points(S_melanocaulos[,c("longitude", "latitude")], col=cols_t1, pch = 23, cex = 0.6)
+
+```
+
+
+```{r}
+peninsula.worldclim <- crop(all.worldclim, extent(-10, 4, 35, 45))
+plot(peninsula.worldclim[["bio1"]])
+points(S_viscosa[,c("longitude", "latitude")], col="blue", pch = 23, cex = 0.6)
+```
+
+```{r}
+
+#extra ? false carrot? 
+peninsula.worldclim <- crop(all.worldclim, extent(-10, 4, 35, 45))
+plot(peninsula.worldclim[["bio1"]])
+points(Daucus_carota1[,c("longitude", "latitude")], col="blue", pch = 23, cex = 0.6)
+```
+
+
 9. Also map that species with climate variables on a world map or European map. Are you convinced that the species is endemic to this peninsula?
+
+
+#? FIX "incorrect number of dimensions??" Didn't work when BIEN data was up top instead of SPOCC either 
+```{r}
+plot(all.worldclim[["bio1"]])
+points(S_melanocaulos[,c("longitude", "latitude")], pch = 24, cex = 0.5)
+plot(all.worldclim[["bio12"]])
+points(S_melanocaulos[,c("longitude", "latitude")], pch = 16, cex = 0.5, col = "red")
+plot(all.worldalt[["alt"]])
+points(S_melanocaulos[,c("longitude", "latitude")], pch = 16, cex = 0.5, col = "red")
+```
+
+
 10. Returning to your results for #4 above, find another species with a range outside of the  peninsula. Download occurrence data and map on a world map. 
+
+```{r}
+M_recurva <- BIEN_occurrence_species(species = "Minuartia recurva")
+
+```
+
+```{r}
+plot(all.worldclim[["bio1"]])
+points(M_recurva[,c("longitude", "latitude")], pch = 24, cex = 0.5)
+plot(all.worldclim[["bio12"]])
+points(M_recurva[,c("longitude", "latitude")], pch = 16, cex = 0.5, col = "red")
+plot(all.worldalt[["alt"]])
+points(M_recurva[,c("longitude", "latitude")], pch = 16, cex = 0.5, col = "red")
+```
+
 11. Then re-map on an appropriately cropped map.
+#? need long and lat for this one, as below, though this was just an extra map to make since we really want the climate one
+```{r}
+map('world', fill=T, col="white", bg="dark blue", xlim=c(-85,-35),ylim=c(-40,12))
+points(cbind(S_melanocaulos$longitude, J_pauciflora$latitude), col="red", pch=20, cex=.8)
+points(cbind(Daucus_carota1$longitude, J_polita$latitude), col="orange", pch=20, cex=.8)
+```
+
+
+#The map below is not set to coordinates yet, since it's supposed to depend on where we find the species elsewhere in the world
+```{r}
+newmap.worldclim <- crop(all.worldclim, extent(-#, -#, -#, #))
+plot(newmap.worldclim[["bio1"]])
+```
+
+#Same as above comment
+```{r}
+plot(newmap.worldclim[["bio1"]])
+points(S_melanocaulos[,c("longitude", "latitude")], pch = 24, cex = 0.5)
+plot(newmap.worldclim[["bio12"]])
+points(S_melanocaulos[,c("longitude", "latitude")], pch = 16, cex = 0.5, col = "red")
+plot(newmap.worldclim[["alt"]])
+points(S_melanocaulos[,c("longitude", "latitude")], pch = 16, cex = 0.5, col = "red")
+```
+
+
 
 ONE LAST THING
-12. Don't forget to identify the peninsula that we are working with!
+#12. Don't forget to identify the peninsula that we are working with!
+
+We're working with the Iberian peninsula.
